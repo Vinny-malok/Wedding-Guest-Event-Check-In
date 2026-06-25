@@ -62,32 +62,48 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbzgrzkwVmxDJC6r4FQsRx
 
 let isScanning = true;
 
-function onScanSuccess(decodedText) {
+function onScanSuccess(decodedText){
 
-    if (!isScanning) return;
-
-    isScanning = false;
+    console.log("QR CODE:", decodedText);
 
     fetch(scriptURL + "?code=" + decodedText)
-    .then(res => res.text())
-    .then(response => {
+    .then(response => response.text())
+    .then(data => {
 
-        let parts = response.split("|");
+        console.log("FROM APPS SCRIPT:", data);
 
-        if(parts[0] === "SUCCESS") {
+        let parts = data.split("|");
+
+
+        if(parts[0] === "SUCCESS"){
+
             document.getElementById("result").innerHTML =
-            "Welcome " + parts[1];
+            "Welcome<br>" + parts[1];
 
-        } else if(parts[0] === "ALREADY") {
+
+            document.getElementById("totalChecked").innerHTML =
+            parts[2];
+
+        }
+
+
+        else if(parts[0] === "ALREADY"){
 
             document.getElementById("result").innerHTML =
-            "Already checked in: " + parts[1];
+            "Already Checked In:<br>" + parts[1];
 
-        } else {
+        }
+
+
+        else{
 
             document.getElementById("result").innerHTML =
             "Guest Not Found";
+
         }
+
+    })
+}
 
         setTimeout(()=>{
             isScanning=true;
