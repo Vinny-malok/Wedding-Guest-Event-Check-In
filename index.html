@@ -36,6 +36,7 @@
         height:100%;
         object-fit: cover;
         border-radius: 20px;
+        display: block;
     }
     #result{
         margin-top:20px;
@@ -104,7 +105,7 @@ let scanner;
 
 function startScanner() {
 
-    const scanner = new Html5QrcodeScanner(
+    scanner = new Html5QrcodeScanner(
         "reader",
         {
             fps: 10,
@@ -112,13 +113,15 @@ function startScanner() {
                 width: 250,
                 height: 250
             },
-            rememberLastUsedCamera: true
-        }
+            rememberLastUsedCamera: true,
+            showTorchButtonIfSupported: true
+        },
+        false
     );
 
     scanner.render(
         onScanSuccess,
-        (errorMessage) => {
+        function(errorMessage) {
             console.log("Scanner error:", errorMessage);
         }
     );
