@@ -89,25 +89,26 @@ function onScanSuccess(decodedText){
 
 if(result.success){
 
-    document.getElementById("result").innerHTML =
-    `
-    Welcome<br>
-    <b>${result.name}</b>
-    <br>
-    Checked In: ${result.checkedCount}/${result.totalGuests}
-    <br>
-    Remaining: ${result.remaining}
-    `;
+fetch(scriptURL + "?code=" + code)
+.then(res => res.json())
+.then(data => {
 
+if(data.success){
+
+document.getElementById("result").innerHTML =
+`
+<b>${data.name}</b><br>
+${data.rsvp}
+`;
+
+}else{
+
+document.getElementById("result").innerHTML =
+"Guest Not Found";
 
 }
-else{
 
-    document.getElementById("result").innerHTML =
-    result.message;
-
-}
-
+});   
 
         setTimeout(()=>{
 
@@ -146,7 +147,6 @@ function startScanner() {
                 height: 250
             },
             rememberLastUsedCamera: true,
-            showTorchButtonIfSupported: true
         },
         false
     );
