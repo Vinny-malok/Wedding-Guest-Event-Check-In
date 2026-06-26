@@ -84,39 +84,29 @@ function onScanSuccess(decodedText){
         console.log("APPS SCRIPT:", data);
 
 
-        let parts = data.split("|");
+        let result = JSON.parse(data);
 
 
-        if(parts[0] === "SUCCESS"){
+if(result.success){
+
+    document.getElementById("result").innerHTML =
+    `
+    Welcome<br>
+    <b>${result.name}</b>
+    <br>
+    Checked In: ${result.checkedCount}/${result.totalGuests}
+    <br>
+    Remaining: ${result.remaining}
+    `;
 
 
-            document.getElementById("result").innerHTML =
-            "Welcome<br><b>" + parts[1] + "</b>";
+}
+else{
 
+    document.getElementById("result").innerHTML =
+    result.message;
 
-            document.getElementById("total").innerHTML =
-            parts[2] + "/" + parts[3];
-
-
-        }
-
-        else if(parts[0] === "ALREADY"){
-
-
-            document.getElementById("result").innerHTML =
-            "Already Checked In:<br><b>" + parts[1] + "</b>";
-
-
-        }
-
-        else {
-
-
-            document.getElementById("result").innerHTML =
-            "Guest Not Found";
-
-
-        }
+}
 
 
         setTimeout(()=>{
