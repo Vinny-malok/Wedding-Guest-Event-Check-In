@@ -125,38 +125,61 @@ document.getElementById("result").innerHTML =
 
 
     .catch(error=>{
-
         console.log(error);
-
-        scanLock=false;
-
+        isScanning=true;
     });
-
-}
+    }
     
 let scanner;
 
-function startScanner() {
+function startScanner(){
 
-    scanner = new Html5QrcodeScanner(
-        "reader",
-        {
-            fps: 10,
-            qrbox: {
-                width: 250,
-                height: 250
-            },
-            rememberLastUsedCamera: true,
-        },
-        false
-    );
+scanner = new Html5QrcodeScanner(
+"reader",
+{
+fps:10,
+qrbox:250
+}
+);
 
-    scanner.render(
-        onScanSuccess,
-        function(errorMessage) {
-            console.log("Scanner error:", errorMessage);
-        }
-    );
+scanner.render(
+(code)=>{
+
+console.log("QR:", code);
+
+fetch(
+"https://script.google.com/macros/s/YOUR_WEB_APP_ID/exec?code=" 
++ encodeURIComponent(code)
+)
+.then(res=>res.json())
+.then(data=>{
+
+if(data.success){
+
+document.getElementById("result").innerHTML =
+`
+<h2>${data.name}</h2>
+<p>${data.rsvp}</p>
+`;
+
+}else{
+
+document.getElementById("result").innerHTML =
+"Guest Not Found";
+
+}
+
+})
+.catch(err=>{
+console.log(err);
+});
+
+},
+(error)=>{
+console.log(error);
+}
+);
+
 }
 
 startScanner();
