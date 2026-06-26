@@ -60,56 +60,62 @@
 
 const scriptURL = "https://script.google.com/macros/s/AKfycbzgrzkwVmxDJC6r4FQsRxj8aRAywc94YpsKfsftOByE8ycXlK6yXUTXPjZE69VEahLb/exec";
 
-let isScanning = true;
+let isScanning = false;
 
-function onScanSuccess(decodedText){
+function onScanSuccess(decodedText) {
 
-    console.log("QR CODE:", decodedText);
+    if (isScanning) return;
+    isScanning = true;
 
-    let url = scriptURL + "?code=" + decodedText;
-
-    fetch(url)
+    fetch(scriptURL + "?code=" + encodeURIComponent(decodedText))
     .then(response => response.text())
-        
     .then(data => {
 
-        console.log("FROM APPS SCRIPT:", data);
+        console.log("Server Response:", data);
+
+        // Remove quotes because Apps Script returns JSON.stringify()
+        data = data.replace(/^"|"$/g, "");
 
         let parts = data.split("|");
 
-        if(parts[0] === "SUCCESS"){
+        if (parts[0] === "SUCCESS") {
 
             document.getElementById("result").innerHTML =
-            "Welcome<br>" + parts[1];
+                "<h2 style='color:#00ff99'>" + parts[1] + "</h2>";
 
-            document.getElementById("total").innerHTML =
-            parts[2];
+        }
+        else if (parts[0] === "ALREADY") {
+
+            document.getElementById("result").innerHTML =
+                "<h2 style='color:orange'>" + parts[1] + "<br>Already Checked In</h2>";
+
+        }
+        else {
+
+            document.getElementById("result").innerHTML =
+                "<h2 style='color:red'>Guest Not Found</h2>";
 
         }
 
-        else if(parts[0] === "ALREADY"){
-
-            document.getElementById("result").innerHTML =
-            "Already Checked In:<br>" + parts[1];
-
-        }
-
-        else{
-
-            document.getElementById("result").innerHTML =
-            "Guest Not Found";
-
-        }
-
-        setTimeout(()=>{
-            
-            document.getElementById("result").innerHTML="Ready to scan";
-            
-        },4000);
-
-        
     })
-        
+    .catch(err => {
+
+        console.error(err);
+
+        document.getElementById("result").innerHTML =
+            "<h2 style='color:red'>Connection Error</h2>";
+
+    })
+    .finally(() => {
+
+        setTimeout(() => {
+            document.getElementById("result").innerHTML = "Ready to Scan";
+            isScanning = false;
+        }, 3000);
+
+    });
+
+}     
     .catch(error=>{
         
         console.log(error);
@@ -145,20 +151,5 @@ function startScanner() {
 }
 
 startScanner();
-function updateLiveCount() {
-    fetch(scriptURL + "?action=count")
-    .then(res => res.text())
-    .then(data => {
-        let parts = data.split("|");
-        let checked = parts[0];
-        let total = parts[1];
-        
-        document.getElementById("total").innerText = checked + "/" + total;
-    })
-    .catch(err => console.error("Count error:", err));
-}
-
-updateLiveCount();
-setInterval(updateLiveCount, 3000);
-    
+   
 </script>
