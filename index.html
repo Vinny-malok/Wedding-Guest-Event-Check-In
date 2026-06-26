@@ -77,38 +77,35 @@ function onScanSuccess(decodedText){
 
     fetch(url)
 
-    .then(response => response.text())
+    .then(response => response.json())
 
     .then(data => {
 
         console.log("APPS SCRIPT:", data);
 
 
-        let result = JSON.parse(data);
+        if(data.success){
+
+            document.getElementById("result").innerHTML =
+            `
+            <h2>Welcome</h2>
+            <b>${data.name}</b>
+            <br>
+            Standing: ${data.standing}
+            <br>
+            Table: ${data.table}
+            `;
 
 
-if(result.success){
+        } else {
 
-fetch(scriptURL + "?code=" + code)
-.then(res => res.json())
-.then(data => {
 
-if(data.success){
+            document.getElementById("result").innerHTML =
+            "Guest Not Found";
 
-document.getElementById("result").innerHTML =
-`
-<b>${data.name}</b><br>
-${data.rsvp}
-`;
 
-}else{
+        }
 
-document.getElementById("result").innerHTML =
-"Guest Not Found";
-
-}
-
-});   
 
         setTimeout(()=>{
 
@@ -121,12 +118,22 @@ document.getElementById("result").innerHTML =
         },3000);
 
 
+    })
+
 
     .catch(error=>{
+
         console.log(error);
-        isScanning=true;
+
+        scanLock = false;
+
+        document.getElementById("result").innerHTML =
+        "Connection Error";
+
     });
-    }
+
+
+}
     
 let scanner;
 
